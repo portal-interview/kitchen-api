@@ -1,0 +1,31 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: kitchen-api
+  description: Kitchen display and order management API — the nerve center of the kitchen
+  annotations:
+    github.com/project-slug: portal-interview/kitchen-api
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/portal-interview/kitchen-api
+      title: GitHub
+spec:
+  type: service
+  lifecycle: production
+  owner: group:portal-interview/team-grill
+  system: kitchen-display-system
+  providesApis:
+    - kitchen-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: kitchen-api
+  description: Kitchen display and order management API
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:portal-interview/team-grill
+  system: kitchen-display-system
+  definition:
+    $text: ./openapi.yaml

@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: Kitchen API
+  description: Kitchen display and order management — the nerve center of Flavortown's kitchen
+  version: 1.0.0
+servers:
+  - url: https://kitchen-api.flavortown.internal
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /orders:
+    get:
+      summary: List kitchen orders
+      operationId: listOrders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, ready, completed]
+        - name: station
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of kitchen orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KitchenOrder'
+  /orders/{orderId}/status:
+    post:
+      summary: Update order status
+      operationId: updateOrderStatus
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KitchenOrder'
+  /display:
+    get:
+      summary: Get kitchen display state
+      operationId: getDisplayState
+      responses:
+        '200':
+          description: Current kitchen display state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisplayState'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+    KitchenOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          example: order-42
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Donkey Sauce Burger
+              quantity:
+                type: integer
+                example: 2
+              modifications:
+                type: array
+                items:
+                  type: string
+                example: ["extra cheese", "no onions"]
+        station:
+          type: string
+          example: grill-1
+        status:
+          type: string
+          enum: [pending, in_progress, ready, completed]
+        priority:
+          type: string
+          enum: [normal, rush, vip]
+        createdAt:
+          type: string
+          format: date-time
+    StatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_progress, ready, completed]
+        notes:
+          type: string
+    DisplayState:
+      type: object
+      properties:
+        stations:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              activeOrders:
+                type: integer
+              status:
+                type: string
+                enum: [active, idle, offline]
+        pendingCount:
+          type: integer
+        inProgressCount:
+          type: integer
+        averageWaitMinutes:
+          type: number
